@@ -24,6 +24,7 @@ public class CamerManager : MonoBehaviour
     {
         if (toog)
         {
+            
             positionAnimation.transform.DOMove(new Vector3(20.478f, 2.9f, 1.428f), moveDuration);
             rotationAnimation.transform.DORotate(new Vector3(42.39f, 180f, 0f), 1.0f);
             moneybox.transform.DOMove(new Vector3 (20.376f, 1.484f, -0.034f), moveDuration);
