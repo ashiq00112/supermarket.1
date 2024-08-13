@@ -16,7 +16,9 @@ public class CamerManager : MonoBehaviour
     public float moveDuration = 1.0f;
     public Vector3 cammainposiiton;
     public Vector3 cammainrotation;
-
+    //cardpaycamera
+    public Vector3 cardpayposition;
+    public Vector3 cardpayrotation;
 
     public bool toog;
 
@@ -39,6 +41,23 @@ public class CamerManager : MonoBehaviour
         }
 
     }
-   
+    public void cardpay()
+    {
+        if (toog)
+        {
+
+            positionAnimation.transform.DOMove(cardpayposition, moveDuration);
+            rotationAnimation.transform.DORotate(cardpayrotation, 1.0f);
+            toog = false;
+        }
+        else
+        {
+            positionAnimation.transform.DOMove(cammainposiiton, moveDuration);
+            rotationAnimation.transform.DORotate(cammainrotation, 1.0f);
+            toog = true;
+        }
+
+
+        }
 
 }
