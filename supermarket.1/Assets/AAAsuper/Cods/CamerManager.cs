@@ -35,9 +35,6 @@ public class CamerManager : MonoBehaviour
             rotationAnimation.transform.DORotate(new Vector3(12.922f, 120.791f, 0.158f), 1.0f);
             moneybox.transform.DOMove(new Vector3(20.376f, 1.484f, -0.794f), moveDuration);
             toog = true;
-
-
-
         }
 
     }

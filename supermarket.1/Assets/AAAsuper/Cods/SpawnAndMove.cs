@@ -5,21 +5,20 @@ using TMPro;
 
 public class SpawnAndMove : MonoBehaviour
 {
-    public GameObject[] prefabs;         // Array of prefabs to spawn
-    public float[] prefabValues;         // Array of values corresponding to each prefab
-    public Transform[] spawnPositions;   // Array of spawn positions using Transforms
-    public BoxCollider targetArea;       // The target area defined by a BoxCollider
-    public float moveDuration = 2f;      // The duration for moving the prefab
-    public int stackThreshold = 8;       // The number of prefabs before moving them upwards
-    public float stackOffset = 1f;       // The vertical offset for stacking
-    private int prefabCount = 0;         // Count of prefabs spawned
-    public float giving;                 // Accumulated value of spawned prefabs
-
-    public TextMeshPro givingText;   // Reference to the TextMeshProUGUI component
-    
-    private List<GameObject> spawnedPrefabs = new List<GameObject>();  // List to store spawned prefabs
-    private Dictionary<GameObject, float> prefabValuesMap = new Dictionary<GameObject, float>(); // Dictionary to store prefab values
-    private List<Transform> originalPositions = new List<Transform>(); // List to store the original spawn positions
+    public GameObject[] prefabs;
+    public float[] prefabValues;
+    public Transform[] spawnPositions;
+    public BoxCollider targetArea;
+    public float moveDuration = 2f;
+    public int stackThreshold = 8;
+    public float stackOffset = 1f;
+    private int prefabCount = 0;
+    public float giving;
+    public TextMeshPro givingText;
+    public float change;
+    private List<GameObject> spawnedPrefabs = new List<GameObject>();
+    private Dictionary<GameObject, float> prefabValuesMap = new Dictionary<GameObject, float>();
+    private List<Transform> originalPositions = new List<Transform>();
 
     public void Moneymover(int prefabIndex)
     {
@@ -48,9 +47,9 @@ public class SpawnAndMove : MonoBehaviour
         GameObject spawnedObject = Instantiate(selectedPrefab, spawnTransform.position, Quaternion.identity);
 
         spawnedObject.transform.parent = targetArea.transform;
-        spawnedPrefabs.Add(spawnedObject);  // Add the spawned prefab to the list
+        spawnedPrefabs.Add(spawnedObject);
         originalPositions.Add(spawnTransform);
-        prefabValuesMap[spawnedObject] = prefabValue; // Store the prefab value in the dictionary
+        prefabValuesMap[spawnedObject] = prefabValue;
 
         // Apply random rotation using DOTween
         float randomRotationZ = GetRandomRotationZ();
@@ -60,8 +59,13 @@ public class SpawnAndMove : MonoBehaviour
         Vector3 randomPosition = GetRandomPositionInsideCollider(targetArea);
         Vector3 adjustedPosition = AdjustPositionForStacking(randomPosition);
 
-        // Move the object to the adjusted position using DOTween
-        spawnedObject.transform.DOMove(adjustedPosition, moveDuration).SetEase(Ease.OutQuad);
+        // Move the object upwards first, then move to the adjusted position using DOTween
+        Vector3 upwardPosition = spawnedObject.transform.position + Vector3.up * .6f; // Move up by 2 units (adjust as needed)
+        spawnedObject.transform.DOMove(upwardPosition, 0.5f).SetEase(Ease.OutQuad)
+            .OnComplete(() =>
+            {
+                spawnedObject.transform.DOMove(adjustedPosition, moveDuration).SetEase(Ease.OutQuad);
+            });
 
         // Update giving
         giving += prefabValue;
@@ -78,22 +82,19 @@ public class SpawnAndMove : MonoBehaviour
             return;
         }
 
-        // Get the last spawned prefab and its value
         int lastIndex = spawnedPrefabs.Count - 1;
         GameObject lastSpawnedObject = spawnedPrefabs[lastIndex];
         Transform originalSpawnPosition = originalPositions[lastIndex];
         float lastPrefabValue = prefabValuesMap[lastSpawnedObject];
 
-        // Move the object back to its original spawn position using DOTween
         lastSpawnedObject.transform.DOMove(originalSpawnPosition.transform.position, moveDuration).SetEase(Ease.InOutQuad)
             .OnComplete(() =>
             {
-                Destroy(lastSpawnedObject); // Destroy the object after reaching the position
-                giving -= lastPrefabValue; // Deduct the value from giving
+                Destroy(lastSpawnedObject);
+                giving -= lastPrefabValue;
                 UpdateGivingText();
             });
 
-        // Remove the last prefab from the lists after moving it back
         spawnedPrefabs.RemoveAt(lastIndex);
         originalPositions.RemoveAt(lastIndex);
         prefabValuesMap.Remove(lastSpawnedObject);
@@ -129,10 +130,13 @@ public class SpawnAndMove : MonoBehaviour
     {
         if (givingText != null)
         {
-            // Convert giving to dollars and cents
             int dollars = Mathf.FloorToInt(giving);
             int cents = Mathf.RoundToInt((giving - dollars) * 100);
             givingText.text = $"${dollars}.{cents:D2}";
+            if (change == giving)
+            {
+                print("done");
+            }
         }
     }
 }

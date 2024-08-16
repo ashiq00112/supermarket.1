@@ -1,14 +1,29 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 
 public class GameObjectButton : MonoBehaviour
 {
     public UnityEvent OnClick;
+    public GameObject outline;
+    private bool isHolding = false;
+
+    void Update()
+    {
+        if (isHolding)
+        {
+            PrintHello(); // Continuously print "Hello" while holding
+        }
+    }
+
     void OnMouseDown()
     {
-        // Logic to be executed when the GameObject is clicked
-        CastRay();
+        isHolding = true; // Start holding
+    }
+
+    void OnMouseUp()
+    {
+        isHolding = false; // Stop holding
+        CastRay(); // Invoke the raycast event on release
     }
 
     void CastRay()
@@ -18,14 +33,22 @@ public class GameObjectButton : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit))
         {
-            // Handle the hit object
-            OnClick?.Invoke();
-         
-        }     
+            if(outline != null)
+            {
+                outline.SetActive(false);
+
+            }
+            OnClick?.Invoke(); // Invoke the event if a hit is detected
+        }
     }
 
-    public void dd()
+    public void PrintHello()
     {
-        print("work");
+        Debug.Log("Hello");
+        if (outline != null)
+        {
+            outline.SetActive(true);
+
+        }
     }
 }
