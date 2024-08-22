@@ -44,7 +44,7 @@ public class GameObjectButton : MonoBehaviour
 
     public void PrintHello()
     {
-        Debug.Log("Hello");
+        
         if (outline != null)
         {
             outline.SetActive(true);
